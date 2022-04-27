@@ -1,7 +1,10 @@
-import React, { useState } from "react";
-import { validateEvent, isEmptyObject } from "../helpers/helpers";
+import React, { useState, useRef, useEffect } from "react";
+import Pikaday from "pikaday";
+import "pikaday/css/pikaday.css";
+import { formatDate, validateEvent, isEmptyObject } from "../helpers/helpers";
+import PropTypes from "prop-types";
 
-const EventForm = () => {
+const EventForm = ({ onSave }) => {
   const [event, setEvent] = useState({
     event_type: "",
     event_date: "",
@@ -13,12 +16,33 @@ const EventForm = () => {
 
   const [formErrors, setFormErrors] = useState({});
 
+  const dateInput = useRef(null);
+
+  useEffect(() => {
+    const p = new Pikaday({
+      field: dateInput.current,
+      onSelect: (date) => {
+        const formattedDate = formatDate(date);
+        dateInput.current.value = formattedDate;
+        updateEvent("event_date", formattedDate);
+      },
+    });
+
+    // Return a cleanup function.
+    // React will call this prior to unmounting.
+    return () => p.destroy();
+  }, []);
+
+  const updateEvent = (key, value) => {
+    setEvent((prevEvent) => ({ ...prevEvent, [key]: value }));
+  };
+
   const handleInputChange = (e) => {
     const { target } = e;
     const { name } = target;
     const value = target.type === "checkbox" ? target.checked : target.value;
 
-    setEvent({ ...event, [name]: value });
+    updateEvent(name, value);
   };
 
   const renderErrors = () => {
@@ -45,7 +69,7 @@ const EventForm = () => {
     if (!isEmptyObject(errors)) {
       setFormErrors(errors);
     } else {
-      console.log(event);
+      onSave(event);
     }
   };
 
@@ -73,7 +97,8 @@ const EventForm = () => {
               type="text"
               id="event_date"
               name="event_date"
-              onChange={handleInputChange}
+              ref={dateInput}
+              autoComplete="off"
             />
           </label>
         </div>
@@ -131,3 +156,7 @@ const EventForm = () => {
 };
 
 export default EventForm;
+
+EventForm.propTypes = {
+  onSave: PropTypes.func.isRequired,
+};
