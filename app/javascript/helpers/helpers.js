@@ -33,3 +33,8 @@ export const formatDate = (d) => {
 
   return `${YYYY}-${MM}-${DD}`;
 };
+
+export const handleAjaxError = (err) => {
+  error("Something went wrong");
+  console.error(err);
+};

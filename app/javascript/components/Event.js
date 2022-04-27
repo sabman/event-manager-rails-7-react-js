@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useParams } from "react-router-dom";
 
-const Event = ({ events }) => {
+const Event = ({ events, onDelete }) => {
   const { id } = useParams();
   console.log(events);
   const event = events.find((e) => e.id === Number(id));
@@ -13,6 +13,13 @@ const Event = ({ events }) => {
         {event.event_date}
         {" - "}
         {event.event_type}
+        <button
+          className="delete"
+          type="button"
+          onClick={() => onDelete(event.id)}
+        >
+          Delete
+        </button>
       </h2>
       <ul>
         <li>
@@ -50,6 +57,7 @@ Event.propTypes = {
       published: PropTypes.bool.isRequired,
     })
   ).isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default Event;
